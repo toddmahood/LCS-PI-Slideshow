@@ -3,6 +3,12 @@ import cv2
 import json
 import time
 import pygame
+from PIL import Image, ExifTags
+from pillow_heif import register_heif_opener
+from pillow_heif import register_avif_opener
+
+register_heif_opener()
+register_avif_opener()
 
 # Initialize pygame
 pygame.init()
@@ -13,15 +19,50 @@ with open("config.json") as file:
 local_media_directory = data["local_media_directory"]
 
 # Set up the display
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)  # Fullscreen mode
 clock = pygame.time.Clock()
 
-# Helper function to scale an image without distortion
-def load_image_no_distortion(image_path, screen_size):
-    # EXIF support needed, auto image rotation, 
-    # Load the image
-    img = pygame.image.load(image_path)
+
+def load_image(image_path, screen_size):
+    try:
+        img = Image.open(image_path)
+        print(img.size)
+        width, height = img.size
+        if (width < 1280) or (height < 720):
+            print("Too small to use most likely")
+            return None
+        
+    except:
+        print("Pillow could not load image...")
+
+    try:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+        
+        exif = img._getexif()
+        if exif is not None:
+            orientation_value = exif.get(orientation, None)
+            
+            if orientation_value == 3:
+                img = img.rotate(180, expand=True)
+            elif orientation_value == 6:
+                img = img.rotate(270, expand=True)
+            elif orientation_value == 8:
+                img = img.rotate(90, expand=True)
+    except (AttributeError, KeyError, IndexError):
+        # EXIF data might not be present, or orientation tag not found
+        pass
     
+    # Convert the Pillow image to a format pygame can work with
+    img = img.convert('RGB')  # Convert to RGB format
+    mode = img.mode
+    size = img.size
+    data = img.tobytes()
+
+    # Create a pygame surface
+    img = pygame.image.fromstring(data, size, mode)
+
     # Get the original image dimensions
     image_width, image_height = img.get_size()
     screen_width, screen_height = screen_size
@@ -84,15 +125,17 @@ def fade_in_out(image, screen, fade_in=True, duration=1000):
 def run_slideshow(media_files):
     screen_size = screen.get_size()
     for media in media_files:
-        if media.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.heic')):
+        if media.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.heic', '.HEIC')):
             # Load and display image with fade-in and fade-out
-            image = load_image_no_distortion(media, screen_size)
+            image = load_image(media, screen_size)
+            if image == None:
+                continue
             image_rect = image.get_rect(center=screen.get_rect().center)
             fade_in_out(image, screen, fade_in=True)
             screen.blit(image, image_rect.topleft)
 
             pygame.display.update()
-            time.sleep(2)  # Display for 2 seconds
+            time.sleep(1)  # Display for 2 seconds
             fade_in_out(image, screen, fade_in=False)
         
         elif media.endswith(('.mp4', '.avi', '.mov', '.mkv')):
