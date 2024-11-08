@@ -107,9 +107,9 @@ def run_slideshow(media_files):
 # Main loop
 def main():
     # List of media files (mix of images and videos)
-    media_files = os.listdir(local_media_directory)
-    media_files = [os.path.join(local_media_directory, file) for file in media_files]
-    run_slideshow(media_files)
+    directory_path, directory_name, media_filenames in os.walk(local_media_directory)
+    media_filenames= [os.path.join(local_media_directory, file_name) for file_name in media_filenames]
+    run_slideshow(media_filenames)
 
     pygame.quit()
 
