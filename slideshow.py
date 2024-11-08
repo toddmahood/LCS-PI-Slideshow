@@ -84,7 +84,6 @@ def fade_in_out(image, screen, fade_in=True, duration=1000):
 def run_slideshow(media_files):
     screen_size = screen.get_size()
     for media in media_files:
-        media = media.lower()
         if media.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.heic')):
             # Load and display image with fade-in and fade-out
             image = load_image_no_distortion(media, screen_size)
