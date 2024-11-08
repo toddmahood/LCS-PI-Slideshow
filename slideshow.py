@@ -107,7 +107,7 @@ def play_video(video_path, screen):
 
 # Function to fade in/out an image
 def fade_in_out(image, screen, image_rect=None, fade_in=True, duration=1000):
-    for alpha in range(0, 255, 5):  # Adjust step size as needed
+    for alpha in range(0, 255, 2):  # Adjust step size as needed
         if fade_in:
             faded_alpha = alpha
         else:
