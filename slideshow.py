@@ -19,9 +19,8 @@ with open("config.json") as file:
 local_media_directory = data["local_media_directory"]
 
 # Set up the display
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)  # Fullscreen mode
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen Mode
 clock = pygame.time.Clock()
-
 
 def load_image(image_path, screen_size):
     try:
@@ -82,7 +81,7 @@ def load_image(image_path, screen_size):
         new_width = int(screen_height * image_aspect_ratio)
 
     # Scale the image
-    scaled_image = pygame.transform.scale(img, (new_width, new_height))
+    scaled_image = pygame.transform.scale(img, (new_width, new_height)).convert()
 
     return scaled_image
 
@@ -107,17 +106,19 @@ def play_video(video_path, screen):
     cap.release()
 
 # Function to fade in/out an image
-def fade_in_out(image, screen, fade_in=True, duration=1000):
-    alpha_surface = pygame.Surface(screen.get_size())
-    alpha_surface.fill((0, 0, 0))  # Black overlay
-    for alpha in range(0, 255, 5):  # Adjust step size for speed of fade
-        image_rect = image.get_rect(center=screen.get_rect().center)
-        screen.blit(image, image_rect.topleft)
+def fade_in_out(image, screen, image_rect=None, fade_in=True, duration=1000):
+    for alpha in range(0, 255, 5):  # Adjust step size as needed
         if fade_in:
-            alpha_surface.set_alpha(255 - alpha)
+            faded_alpha = alpha
         else:
-            alpha_surface.set_alpha(alpha)
-        screen.blit(alpha_surface, (0, 0))
+            faded_alpha = 255 - alpha
+        
+        # Set the alpha transparency value
+        image.set_alpha(faded_alpha)
+
+        # Blit the image onto the screen and update the display
+        screen.fill((0, 0, 0))  # Clear the screen with a black background
+        screen.blit(image, image_rect)
         pygame.display.update()
         pygame.time.delay(duration // 51)  # Adjust time for smoother fade
 
@@ -131,12 +132,11 @@ def run_slideshow(media_files):
             if image == None:
                 continue
             image_rect = image.get_rect(center=screen.get_rect().center)
-            fade_in_out(image, screen, fade_in=True)
-            screen.blit(image, image_rect.topleft)
-
+            fade_in_out(image, screen, image_rect=image_rect, fade_in=True)
+            
             pygame.display.update()
             time.sleep(1)  # Display for 2 seconds
-            fade_in_out(image, screen, fade_in=False)
+            fade_in_out(image, screen, image_rect=image_rect, fade_in=False)
         
         elif media.endswith(('.mp4', '.avi', '.mov', '.mkv')):
             # Play video
@@ -161,11 +161,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
