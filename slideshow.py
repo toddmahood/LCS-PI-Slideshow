@@ -111,7 +111,7 @@ def main():
     media_filenames = []
     for directory_path, directory_name, file_names in os.walk(local_media_directory):
         for media_filename in file_names:
-            media_filenames.append(os.path.join(local_media_directory, media_filename))
+            media_filenames.append(os.path.join(directory_path, media_filename))
 
     run_slideshow(media_filenames)
 
