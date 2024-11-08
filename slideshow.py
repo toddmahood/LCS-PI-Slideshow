@@ -30,7 +30,7 @@ def load_image(image_path, screen_size):
         if (width < 1280) or (height < 720):
             print("Too small to use most likely")
             return None
-        
+
     except:
         print("Pillow could not load image...")
 
@@ -53,6 +53,8 @@ def load_image(image_path, screen_size):
         # EXIF data might not be present, or orientation tag not found
         pass
     
+    # resizes image while preserving aspect ratio
+    img.thumbnail(screen_size, Image.LANCZOS)
     # Convert the Pillow image to a format pygame can work with
     img = img.convert('RGB')  # Convert to RGB format
     mode = img.mode
@@ -60,9 +62,9 @@ def load_image(image_path, screen_size):
     data = img.tobytes()
 
     # Create a pygame surface
-    img = pygame.image.fromstring(data, size, mode)
+    img = pygame.image.fromstring(data, size, mode).convert()
 
-    # Get the original image dimensions
+    '''# Get the original image dimensions
     image_width, image_height = img.get_size()
     screen_width, screen_height = screen_size
 
@@ -81,9 +83,9 @@ def load_image(image_path, screen_size):
         new_width = int(screen_height * image_aspect_ratio)
 
     # Scale the image
-    scaled_image = pygame.transform.scale(img, (new_width, new_height)).convert()
+    scaled_image = pygame.transform.scale(img, (new_width, new_height))'''
 
-    return scaled_image
+    return img
 
 # Helper function for playing a video using OpenCV
 def play_video(video_path, screen):
