@@ -1,13 +1,11 @@
 import os
 import cv2
 import json
-import time
 import pygame
 import asyncio
 from math import inf
 from collections import deque
 from PIL import Image
-from pygame.display import update
 from pillow_heif import register_heif_opener, register_avif_opener
 
 # Register HEIF and AVIF format support
