@@ -3,7 +3,6 @@ import cv2
 import json
 import pygame
 import asyncio
-from math import inf
 from collections import deque
 from PIL import Image
 from pillow_heif import register_heif_opener, register_avif_opener
@@ -125,6 +124,11 @@ async def load_video(video_path):
     
 async def prepare_media_queue(screen_size):
     while True:
+        announcement_files = []
+        for directory_path, _, file_names in os.walk(announcement_directory):
+            for announcement_filename in file_names:
+                announcement_files.append(os.path.join(directory_path, announcement_filename))
+
         media_files = []
         for directory_path, _, file_names in os.walk(local_media_directory):
             for media_filename in file_names:
@@ -161,11 +165,11 @@ async def display_image(image, screen, fade_duration=1000, slide_duration=slide_
         events_to_handle = list(pygame.event.get())
         await handle_events(events_to_handle)
         pygame.display.update()
-        # clock.tick(60)
+        clock.tick(60)
         # await asyncio.sleep(fade_duration // 5100) 
         pygame.time.delay(fade_duration // 51)
     pygame.display.update()
-    # clock.tick(60)
+    clock.tick(60)
     events_to_handle = list(pygame.event.get())
     await handle_events(events_to_handle)
     await asyncio.sleep(slide_duration)
@@ -178,7 +182,7 @@ async def display_image(image, screen, fade_duration=1000, slide_duration=slide_
         events_to_handle = list(pygame.event.get())
         await handle_events(events_to_handle)
         pygame.display.update()
-        # clock.tick(60)
+        clock.tick(60)
         pygame.time.delay(fade_duration // 51)
         # await asyncio.sleep(fade_duration // 5100) 
 
@@ -222,7 +226,7 @@ async def display_video(video, screen):
         clock.tick(60)  # Frame rate for video
     cap.release()
 
-async def pygame_loop(framerate_limit=inf):
+async def pygame_loop(framerate_limit=60):
     task = asyncio.create_task(prepare_media_queue(screen_size))
     while True:
         if len(media_queue) > 0:
