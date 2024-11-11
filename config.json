@@ -1,5 +1,6 @@
 {
-    "target_folder_id": "",
     "local_media_directory": "",
-    "compare_checksum": true
+    "announcement_directory": "",
+    "slide_duration": 2,
+    "announcement_duration": 5
 }
