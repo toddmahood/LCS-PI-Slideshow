@@ -124,12 +124,13 @@ async def load_video(video_path):
     
 async def prepare_media_queue(screen_size):
     while True:
-        announcement_files = []
-        for directory_path, _, file_names in os.walk(announcement_directory):
-            for announcement_filename in file_names:
-                announcement_files.append(os.path.join(directory_path, announcement_filename))
-
         media_files = []
+        num_announcements = 0
+        for directory_path, _, file_names in os.walk(announcement_directory):
+            for media_filename in file_names:
+                media_files.append(os.path.join(directory_path, media_filename))
+                num_announcements += 1
+
         for directory_path, _, file_names in os.walk(local_media_directory):
             for media_filename in file_names:
                 media_files.append(os.path.join(directory_path, media_filename))
@@ -144,14 +145,28 @@ async def prepare_media_queue(screen_size):
             media_type = None
             if media_file.lower().endswith(supported_image_formats):
                 media = await load_image(media_file, screen_size)
-                media_type = "Image"
+                if num_announcements != 0:
+                    media_type = "Announcement"
+                    num_announcements -= 1
+                else:
+                    media_type = "Image"
             elif media_file.lower().endswith(supported_video_formats):
                 media = await load_video(media_file)
-                media_type = "Video"
+                if num_announcements != 0:
+                    media_type = "Announcement"
+                    num_announcements -= 1
+                else:
+                    media_type = "Video"
             else:
                 print(f"Unsupported media file: {media_file}")
+                if num_announcements != 0:
+                    media_type = "Announcement"
+                    num_announcements -= 1
             if media:
-                media_queue.append(media)
+                if media_type == "Announcement":
+                    media_queue.append((media, True))
+                else:
+                    media_queue.append((media, False))
                 print(f"{media_type} added to queue.")
 
 async def display_image(image, screen, fade_duration=1000, slide_duration=slide_duration):
@@ -230,10 +245,13 @@ async def pygame_loop(framerate_limit=60):
     task = asyncio.create_task(prepare_media_queue(screen_size))
     while True:
         if len(media_queue) > 0:
-            media = media_queue.popleft()
+            media, isAnnouncement = media_queue.popleft()
             if isinstance(media, pygame.Surface):
-                await display_image(media, screen)
-            elif isinstance(media, cv2.VideoCapture):
+                if isAnnouncement:
+                    await display_image(media, screen, slide_duration=announcement_duration)
+                else:
+                    await display_image(media, screen)
+            elif isinstance(media, cv2.VideoCapture): 
                 await display_video(media, screen)
             else:
                 print(f"Unrecognized object. {type(media)}")
