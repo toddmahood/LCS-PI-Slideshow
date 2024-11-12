@@ -60,7 +60,7 @@ async def load_image(image_path, screen_size):
     try:
         img = Image.open(image_path)
         img_width, img_height = img.size
-        if (img_width < 1280) or (img_height < 720):
+        if (img_width < 1200) or (img_height < 720):
             print(f"Omitting image, too small...")
             return None
 
