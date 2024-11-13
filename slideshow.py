@@ -31,7 +31,7 @@ logging.basicConfig(filename=f'{log_path}', format='%(asctime)s - %(name)s - %(l
 # Set up the display
 pygame.init()
 pygame.display.set_caption("LCS Slideshow")
-screen = pygame.display.set_mode((pygame.display.Info().current_w, pygame.display.Info().current_h), pygame.SCALED) 
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) 
 logging.debug(f"Screen obj: {screen}")
 screen_size = screen.get_size()
 clock = pygame.time.Clock()
