@@ -1,6 +1,7 @@
 {
     "local_media_directory": "../slideshow-media",
     "announcement_directory": "../announcement-media",
+    "log_directory": "../Logs/slideshow_log.txt",
     "slide_duration": 2,
     "announcement_duration": 5
 }
