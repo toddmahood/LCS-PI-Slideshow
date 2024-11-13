@@ -32,7 +32,6 @@ logging.basicConfig(filename=f'{log_path}', format='%(asctime)s - %(name)s - %(l
 pygame.init()
 pygame.display.set_caption("LCS Slideshow")
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) 
-logging.debug(f"Screen obj: {screen}")
 screen_size = screen.get_size()
 clock = pygame.time.Clock()
 media_queue = deque(maxlen=5)
@@ -276,4 +275,3 @@ async def pygame_loop(framerate_limit=60):
 
 if __name__ == "__main__":
     asyncio.run(pygame_loop(60))
-    logging.debug("loop over")
