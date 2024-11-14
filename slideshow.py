@@ -1,5 +1,6 @@
 import os
 import json
+import pdb
 import pygame
 import asyncio
 import logging
@@ -118,6 +119,7 @@ async def load_image(image_path, screen_size):
 
 async def load_video(video_path):
     try: 
+        pdb.set_trace()
         with open(f"{video_path}", "rb") as f:
             vid_in_bytes = f.read() 
         vid = Video(vid_in_bytes, as_bytes=True)
