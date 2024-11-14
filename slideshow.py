@@ -231,7 +231,7 @@ async def display_video(video, screen):
             fade_alpha = int(((current_video_time - (total_video_duration - fade_out_duration)) / fade_out_duration) * 255)  # Start at 0, increase to 255
         else:
             fade_alpha = 0
-        logging.debug(f"Fade Alpha: {fade_alpha}")
+        # logging.debug(f"Fade Alpha: {fade_alpha}")
 
         if video.draw(screen, (x_pos,y_pos), force_draw=False):
             if fade_alpha > 0:
