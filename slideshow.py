@@ -118,7 +118,9 @@ async def load_image(image_path, screen_size):
 
 async def load_video(video_path):
     try: 
-        vid = Video(video_path)
+        with open(f"{video_path}", "rb") as f:
+            vid_in_bytes = f.read() 
+        vid = Video(vid_in_bytes, as_bytes=True)
         vid.change_resolution(screen_size[1])
         return vid
     except Exception as e:
