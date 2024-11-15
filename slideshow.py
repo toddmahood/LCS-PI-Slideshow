@@ -118,7 +118,9 @@ async def load_image(image_path, screen_size):
 
 async def load_video(video_path):
     try: 
-        vid = Video(video_path)
+        with open(video_path, "rb") as file:
+            vid_as_bytes = file.read()
+        vid = Video(vid_as_bytes, as_bytes=True)
         vid.change_resolution(screen_size[1])
         return vid
     except Exception as e:
@@ -240,8 +242,7 @@ async def display_video(video, screen):
             pygame.display.update()
         events_to_handle = list(pygame.event.get())
         await handle_events(events_to_handle)
-        #clock.tick(video_frame_rate)  # Frame rate for video
-        pygame.time.wait(16) 
+        clock.tick(60)  # Frame rate for video
     video.close()
 
 async def pygame_loop(framerate_limit=60):
