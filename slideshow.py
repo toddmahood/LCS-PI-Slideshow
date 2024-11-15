@@ -24,7 +24,7 @@ slide_duration = data["slide_duration"]
 announcement_duration = data["announcement_duration"]
 log_path = data["log_directory"]
 supported_image_formats = ('.ras', '.im', '.grib', '.qoi', '.jfif', '.pxr', '.pbm', '.rgb', '.pnm', '.hdf', '.sgi', '.jpf', '.icns', '.blp', '.jpeg', '.bw', '.rgba', '.ppm', '.tiff', '.pgm', '.xpm', '.mpeg', '.ftu', '.bufr', '.gif', '.ftc', '.pcx', '.jpg', '.fits', '.pcd', '.ps', '.apng', '.pfm', '.emf', '.jpe', '.tif', '.vst', '.fli', '.cur', '.dib', '.jp2', '.gbr', '.tga', '.icb', '.j2c', '.webp', '.ico', '.png', '.jpc', '.vda', '.h5', '.flc', '.msp', '.eps', '.j2k', '.iim', '.wmf', '.bmp', '.dcx', '.jpx', '.psd', '.fit', '.xbm', '.mpg', '.dds', '.heic', '.avif', '.exif', '.xmp', '.iptc', '.svg', '.lbm')
-supported_video_formats = ('.avi', '.mp4', '.mov') # Probably more, but no official opencv list due to differences in codecs per install?
+supported_video_formats = ('.avi', '.mp4', '.mov', '.ts') # Probably more, but no official opencv list due to differences in codecs per install?
 
 logging.basicConfig(filename=f'{log_path}', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%m-%y %H:%M:%S', level=logging.DEBUG)
 
