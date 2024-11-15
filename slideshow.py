@@ -240,7 +240,8 @@ async def display_video(video, screen):
             pygame.display.update()
         events_to_handle = list(pygame.event.get())
         await handle_events(events_to_handle)
-        clock.tick(video_frame_rate)  # Frame rate for video
+        #clock.tick(video_frame_rate)  # Frame rate for video
+        pygame.time.wait(16) 
     video.close()
 
 async def pygame_loop(framerate_limit=60):
