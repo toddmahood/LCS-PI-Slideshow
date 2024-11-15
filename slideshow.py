@@ -118,7 +118,7 @@ async def load_image(image_path, screen_size):
 
 async def load_video(video_path):
     try: 
-        vid = Video(video_path, max_threads=8, use_pygame_audio=True)
+        vid = Video(video_path, chunk_size=5, max_threads=8, use_pygame_audio=True)
         vid.change_resolution(screen_size[1])
         return vid
     except Exception as e:
