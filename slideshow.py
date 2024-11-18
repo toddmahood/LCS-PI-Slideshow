@@ -37,7 +37,7 @@ screen = pygame.display.set_mode((pygame.display.Info().current_w, pygame.displa
 screen_size = screen.get_size()
 clock = pygame.time.Clock()
 media_queue = deque(maxlen=5)
-Instance = vlc.Instance("")
+Instance = vlc.Instance("--fullscreen")
 MediaPlayer = Instance.media_player_new()
 WinID = pygame.display.get_wm_info()['window']
 
