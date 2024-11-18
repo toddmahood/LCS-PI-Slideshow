@@ -1,11 +1,13 @@
 import os
+import sys
+import vlc
 import json
+import time
 import pygame
 import asyncio
 import logging
 from PIL import Image
 from collections import deque
-from pyvidplayer2 import Video
 from pillow_heif import register_heif_opener, register_avif_opener
 
 # Register HEIF and AVIF format support
@@ -35,6 +37,16 @@ screen = pygame.display.set_mode((pygame.display.Info().current_w, pygame.displa
 screen_size = screen.get_size()
 clock = pygame.time.Clock()
 media_queue = deque(maxlen=5)
+Instance = vlc.Instance("--no-xlib")
+MediaPlayer = Instance.media_player_new()
+WinID = pygame.display.get_wm_info()['window']
+
+if sys.platform == "linux2":
+    MediaPlayer.set_xwindow(WinID)
+elif sys.platform == "win32":
+    MediaPlayer.set_hwnd(WinID)
+elif sys.platform == "darwin":
+    MediaPlayer.set_agl(WinID)
 
 class event_handler:
     def handle_event(event):
@@ -118,11 +130,8 @@ async def load_image(image_path, screen_size):
 
 async def load_video(video_path):
     try: 
-        with open(video_path, "rb") as file:
-            vid_bytes = file.read()
-        vid = Video(vid_bytes, as_bytes=True, chunk_size=60, max_chunks=100, max_threads=16, use_pygame_audio=True)
-        vid.change_resolution(screen_size[1])
-        return vid
+        Media = Instance.media_new(video_path)
+        return Media
     except Exception as e:
         logging.error(f"Error loading video with pyvidplayer2 {video_path}: {e}")
         return None
@@ -207,16 +216,15 @@ async def display_image(image, screen, fade_duration=1000, slide_duration=slide_
         # await asyncio.sleep(fade_duration // 5100) 
 
 async def display_video(video, screen):
-    video_width, video_height = video.current_size
-    x_pos = (screen_size[0] - video_width) // 2
-    y_pos = (screen_size[1] - video_height) // 2
-    video_frame_rate = video.frame_rate
-    logging.debug(f"Video Frame Rate: {video_frame_rate}")
+    MediaPlayer.set_media(video)
+    MediaPlayer.play()
+    await asyncio.sleep(0.1)
     # Create overlay to mimic fading in and out.
-    overlay = pygame.Surface(screen_size)
+    video_frame_rate = MediaPlayer.get_fps()
+    """overlay = pygame.Surface(screen_size)
     overlay.fill((0, 0, 0))
 
-    total_video_duration = video.duration  
+    total_video_duration = MediaPlayer.get_length() / 1000
     fade_in_duration = 1
     fade_out_duration = 1
 
@@ -225,25 +233,22 @@ async def display_video(video, screen):
         fade_in_duration *= scale_factor
         fade_out_duration *= scale_factor
 
-    while video.active:
-        current_video_time = video.get_pos()
+    start_time = time.time()"""
+    while MediaPlayer.is_playing():
+        """current_video_time = time.time() - start_time
+        # print(current_video_time)
         if current_video_time < fade_in_duration:  # Fade-in
             fade_alpha = int(255 - (current_video_time / fade_in_duration) * 255)  # Start at 255, decrease to 0
         elif current_video_time >= (total_video_duration - fade_out_duration):
             fade_alpha = int(((current_video_time - (total_video_duration - fade_out_duration)) / fade_out_duration) * 255)  # Start at 0, increase to 255
         else:
-            fade_alpha = 0
+            fade_alpha = 0"""
         # logging.debug(f"Fade Alpha: {fade_alpha}")
-
-        if video.draw(screen, (x_pos,y_pos), force_draw=False):
-            if fade_alpha > 0:
-                overlay.set_alpha(fade_alpha)
-                screen.blit(overlay, (0, 0))
-            pygame.display.update()
+        pygame.display.update()
         events_to_handle = list(pygame.event.get())
         await handle_events(events_to_handle)
         clock.tick(video_frame_rate)  # Frame rate for video
-    video.close()
+    MediaPlayer.stop()
 
 async def pygame_loop(framerate_limit=60):
     try:
@@ -257,7 +262,7 @@ async def pygame_loop(framerate_limit=60):
                             await display_image(media, screen, slide_duration=announcement_duration)
                         else:
                             await display_image(media, screen)
-                    elif isinstance(media, Video): 
+                    elif isinstance(media, vlc.Media): 
                         await display_video(media, screen)
                     else:
                         logging.error(f"Unrecognized object. {type(media)}")
